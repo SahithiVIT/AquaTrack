@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AquaTrack - Hydration Tracker</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00a8ff;
+      --secondary: #0097e6;
+      --accent: #e84118;
+      --light: #f5f6fa;
+      --dark: #2f3640;
+      --success: #4cd137;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: url('https://images.unsplash.com/photo-1551269901-5c5e14c25df7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      min-height: 100vh;
+      padding: 20px;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: rgba(47, 54, 64, 0.9);
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+      padding: 30px;
+      backdrop-filter: blur(10px);
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-family: 'Montserrat', sans-serif;
+      color: var(--primary);
+      font-size: 3rem;
+      margin-bottom: 5px;
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    header p {
+      color: var(--light);
+      font-weight: 300;
+      font-size: 1.2rem;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .water-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .water-card h2 {
+      color: white;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .water-card h2 i {
+      color: var(--primary);
+    }
+
+    .goal-display {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .goal-display #consumed {
+      color: var(--primary);
+    }
+
+    .water-visual {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin-bottom: 20px;
+    }
+
+    .water-glass {
+      width: 120px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 0 0 30px 30px;
+      position: relative;
+      overflow: hidden;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .water-fill {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      height: 0;
+      background: linear-gradient(to top, var(--primary), var(--secondary));
+      transition: height 0.8s ease;
+    }
+
+    .water-amounts {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .amount-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(0, 168, 255, 0.3);
+    }
+
+    .amount-btn:hover {
+      background: var(--secondary);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 168, 255, 0.4);
+    }
+
+    .custom-amount {
+      display: flex;
+      gap: 10px;
+    }
+
+    .custom-amount input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 1rem;
+    }
+
+    .custom-amount input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .custom-amount button {
+      padding: 12px 25px;
+      background: var(--success);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .custom-amount button:hover {
+      background: #44bd32;
+      transform: translateY(-3px);
+    }
+
+    .history-card {
+      grid-column: span 2;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .history-card h3 {
+      color: white;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .history-card h3 i {
+      color: var(--primary);
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 300px;
+      margin-bottom: 20px;
+    }
+
+    .motivational-quote {
+      text-align: center;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      margin-top: 20px;
+      font-size: 1.1rem;
+    }
+
+    .hydration-tips {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 30px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .tip-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      width: 30%;
+      min-width: 200px;
+      transition: all 0.3s ease;
+    }
+
+    .tip-card:hover {
+      background: rgba(0, 168, 255, 0.2);
+      transform: translateY(-5px);
+    }
+
+    .tip-card h4 {
+      color: var(--primary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .notification {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--primary);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.5s ease;
+      z-index: 1000;
+    }
+
+    .notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+
+      .history-card {
+        grid-column: span 1;
+      }
+
+      .tip-card {
+        width: 100%;
+      }
+
+      .water-visual {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-tint"></i> AquaTrack</h1>
+      <p>Stay hydrated, stay healthy</p>
+    </header>
+
+    <div class="dashboard">
+      <div class="water-card">
+        <h2><i class="fas fa-glass-whiskey"></i> Today's Intake</h2>
+        <div class="goal-display">
+          <span id="consumed">0</span> / <span id="goal">2000</span> ml
+        </div>
+        <div class="water-visual">
+          <div class="water-glass">
+            <div class="water-fill" id="water-fill"></div>
+          </div>
+          <div>
+            <p>You've completed <span id="percentage">0</span>% of your daily goal!</p>
+            <p id="hydration-message">Keep going! Your body will thank you.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="water-card">
+        <h2><i class="fas fa-plus-circle"></i> Add Water</h2>
+        <div class="water-amounts">
+          <button class="amount-btn" data-amount="100">100ml</button>
+          <button class="amount-btn" data-amount="250">250ml</button>
+          <button class="amount-btn" data-amount="500">500ml</button>
+        </div>
+        <div class="custom-amount">
+          <input type="number" id="custom-amount" placeholder="Custom amount (ml)">
+          <button id="add-custom">Add</button>
+        </div>
+      </div>
+
+      <div class="history-card">
+        <h3><i class="fas fa-chart-line"></i> Hydration History</h3>
+        <div class="chart-container">
+          <canvas id="historyChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="motivational-quote" id="quote">
+      "Water is the driving force of all nature." - Leonardo da Vinci
+    </div>
+
+    <div class="hydration-tips">
+      <div class="tip-card">
+        <h4><i class="fas fa-lightbulb"></i> Did You Know?</h4>
+        <p>Drinking water first thing in the morning helps activate your internal organs.</p>
+      </div>
+      <div class="tip-card">
+        <h4><i class="fas fa-heartbeat"></i> Health Tip</h4>
+        <p>Proper hydration can improve mood, memory, and focus.</p>
+      </div>
+      <div class="tip-card">
+        <h4><i class="fas fa-fire"></i> Boost Metabolism</h4>
+        <p>Drinking cold water can help burn a few extra calories as your body warms it.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="notification" id="notification">
+    <p>Time to drink some water! <i class="fas fa-tint"></i></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const consumedDisplay = document.getElementById('consumed');
+      const goalDisplay = document.getElementById('goal');
+      const waterFill = document.getElementById('water-fill');
+      const percentageDisplay = document.getElementById('percentage');
+      const hydrationMessage = document.getElementById('hydration-message');
+      const amountButtons = document.querySelectorAll('.amount-btn');
+      const customAmountInput = document.getElementById('custom-amount');
+      const addCustomButton = document.getElementById('add-custom');
+      const notification = document.getElementById('notification');
+      const quoteElement = document.getElementById('quote');
+
+      let consumedAmount = 0;
+      let dailyGoal = 2000;
+      let percentage = 0;
+
+      const ctx = document.getElementById('historyChart').getContext('2d');
+      const historyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [{
+            label: 'Water Intake (ml)',
+            data: [1200, 1800, 1500, 2000, 1700, 1400, 1900],
+            backgroundColor: 'rgba(0, 168, 255, 0.7)',
+            borderColor: 'rgba(0, 168, 255, 1)',
+            borderWidth: 1,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: 'white' },
+              grid: { color: 'rgba(255,255,255,0.1)' }
+            },
+            x: {
+              ticks: { color: 'white' },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: 'white' } }
+          }
+        }
+      });
+
+      const quotes = [
+        "Water is the driving force of all nature. - Leonardo da Vinci",
+        "Thousands have lived without love, not one without water. - W.H. Auden",
+        "Pure water is the world's first and foremost medicine. - Slovakian Proverb",
+        "Water is the best of all things. - Pindar",
+        "Drink water and mind your business. - Anonymous",
+        "The cure for anything is salt water: sweat, tears, or the sea. - Isak Dinesen"
+      ];
+
+      function updateDisplay() {
+        consumedDisplay.textContent = consumedAmount;
+        percentage = Math.min(Math.floor((consumedAmount / dailyGoal) * 100), 100);
+        percentageDisplay.textContent = percentage;
+        waterFill.style.height = `${percentage}%`;
+
+        if (percentage >= 100) {
+          hydrationMessage.textContent = "Awesome! You've reached your goal!";
+          waterFill.style.background = 'linear-gradient(to top, #4cd137, #44bd32)';
+        } else if (percentage >= 75) {
+          hydrationMessage.textContent = "Almost there! Just a little more!";
+        } else if (percentage >= 50) {
+          hydrationMessage.textContent = "Halfway there! Keep hydrating!";
+        } else {
+          hydrationMessage.textContent = "Keep going! Your body will thank you.";
+        }
+
+        const today = new Date().getDay() - 1;
+        if (today >= 0 && today < 7) {
+          historyChart.data.datasets[0].data[today] = consumedAmount;
+          historyChart.update();
+        }
+      }
+
+      function addWater(amount) {
+        const amountNum = parseInt(amount);
+        if (isNaN(amountNum) || amountNum <= 0) return;
+        consumedAmount += amountNum;
+        updateDisplay();
+        showNotification(`Added ${amountNum}ml of water!`);
+      }
+
+      function showNotification(message) {
+        notification.querySelector('p').innerHTML = message;
+        notification.classList.add('show');
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, 3000);
+      }
+
+      function showRandomQuote() {
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+        quoteElement.textContent = quotes[randomIndex];
+      }
+
+      amountButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          addWater(button.getAttribute('data-amount'));
+        });
+      });
+
+      addCustomButton.addEventListener('click', () => {
+        if (customAmountInput.value) {
+          addWater(customAmountInput.value);
+          customAmountInput.value = '';
+        }
+      });
+
+      customAmountInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          if (customAmountInput.value) {
+            addWater(customAmountInput.value);
+            customAmountInput.value = '';
+          }
+        }
+      });
+
+      updateDisplay();
+      showRandomQuote();
+      setInterval(showRandomQuote, 10000);
+    });
+  </script>
+</body>
+</html>
